@@ -9,11 +9,11 @@
 import UIKit
 
 enum OverlayPosition {
-    case close, min, max
+    case min, max
 }
 
 enum OverlayInFlightPosition {
-    case min, max, maxStretch, belowMin, minCompress
+    case min, max, progressing
 }
 
 /// This is the class that will control the animation of the drawer
@@ -24,38 +24,38 @@ class OverlayContainerVC: UIViewController {
     private var overlayVcView: UIView!
     
     private var heightConstraint: NSLayoutConstraint!
-    private var prevTranslation: CGFloat = 0
     
     private var minHeight: CGFloat {
-        return view.bounds.height * 0.5
+        return view.bounds.height * 0.4
     }
     
     private var maxHeight: CGFloat {
-        return view.bounds.height * 0.8
+        return view.bounds.height * 0.9
     }
     
-    private var maxStretch: CGFloat {
-        return view.bounds.height * 0.93
-    }
+    private var defaultDuration: Double = 0.25
+    private var maxDuration: Double = 0.4
+    private var minimumVelocityConsideration: CGFloat = 100
     
-    private var minCompress: CGFloat {
-        return view.bounds.height * 0.2
-    }
-    
-    private var duration: Double = 0.3
+    private var overlayPosition: OverlayPosition = .min
     
     private var overlayInFlightPosition: OverlayInFlightPosition {
         let height: CGFloat = heightConstraint.constant
-        if height >= maxStretch {
-            return .maxStretch
-        } else if height >= maxHeight {
+        if height == maxHeight {
             return .max
-        } else if height >= minHeight {
+        } else if height == minHeight {
             return .min
-        } else if height >= minCompress{
-            return .belowMin
         } else {
-            return .minCompress
+            return .progressing
+        }
+    }
+    
+    private var translatedViewTargetHeight: CGFloat {
+        switch overlayPosition {
+        case .max:
+            return maxHeight
+        case .min:
+            return minHeight
         }
     }
     
@@ -89,54 +89,67 @@ class OverlayContainerVC: UIViewController {
     
     // MARK: - Scroll Control
     
-    // Decide if to scroll or not
     private func shouldTranslateView(following scrollView: UIScrollView) -> Bool {
+        guard scrollView.isTracking else { return false }
         let offSet: CGFloat = scrollView.contentOffset.y
         switch overlayInFlightPosition {
-        case .maxStretch:
+        case .max:
             return offSet < 0
-        default:
+        case .min:
+            return offSet > 0
+        case .progressing:
             return true
         }
     }
     
-    // Dragging
     private func translateView(following scrollView: UIScrollView) {
-        scrollView.contentOffset.y = 0
-        let translation: CGFloat = heightConstraint.constant - scrollView.panGestureRecognizer.translation(in: view).y + prevTranslation
-        heightConstraint.constant = translation
-        prevTranslation = scrollView.panGestureRecognizer.translation(in: view).y
+        scrollView.contentOffset = .zero
+        let translation: CGFloat = translatedViewTargetHeight - scrollView.panGestureRecognizer.translation(in: view).y
+        heightConstraint.constant = max(minHeight, min(translation, maxHeight))
     }
     
-    // Called when the dragging ends
     private func animateTranslationEnd(following scrollView: UIScrollView, velocity: CGPoint) {
-        // Note we need to use velocity etc to allow for draw and flick
-        switch overlayInFlightPosition {
-        case .max, .maxStretch:
-            moveOverlay(to: .max)
-        case .min, .belowMin:
-            moveOverlay(to: .min)
-        case .minCompress:
-            // Will use the close function for this
-            moveOverlay(to: .close)
-            break
+        let distance: CGFloat = maxHeight - minHeight
+        let progressDistance: CGFloat = heightConstraint.constant - minHeight
+        let progress: CGFloat = progressDistance / distance
+        let velocityY = -velocity.y * 100
+        if abs(velocityY) > minimumVelocityConsideration && progress != 0 && progress != 1 {
+            let rest = abs(distance - progressDistance)
+            let position: OverlayPosition
+            let duration = TimeInterval(rest / abs(velocityY))
+            if velocityY > 0 {
+                position = .min
+            } else {
+                position = .max
+            }
+            moveOverlay(to: position, duration: duration, velocity: velocity)
+        } else {
+            if progress < 0.5 {
+                moveOverlay(to: .min)
+            } else {
+                moveOverlay(to: .max)
+            }
         }
     }
     
     // MARK: - Animation
     
-    private func moveOverlay(to position: OverlayPosition) {
-        switch position {
-        case .close:
-            heightConstraint.constant = 0
-        case .min:
-            heightConstraint.constant = minHeight
-        case .max:
-            heightConstraint.constant = maxHeight
-        }
-        UIView.animate(withDuration: duration, animations: {() in
-            self.view.layoutIfNeeded()
-        })
+    private func moveOverlay(to position: OverlayPosition, duration: TimeInterval, velocity: CGPoint) {
+        overlayPosition = position
+        heightConstraint.constant = translatedViewTargetHeight
+        UIView.animate(
+            withDuration: min(duration, maxDuration),
+            delay: 0,
+            usingSpringWithDamping: velocity.y == 0 ? 1 : 0.6,
+            initialSpringVelocity: abs(velocity.y),
+            options: [.allowUserInteraction],
+            animations: {
+                self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
+    func moveOverlay(to position: OverlayPosition) {
+        moveOverlay(to: position, duration: defaultDuration, velocity: .zero)
     }
 
 }
@@ -151,7 +164,12 @@ extension OverlayContainerVC: OverlayVCDelegate {
     }
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        prevTranslation = 0
+        switch overlayInFlightPosition {
+        case .max:
+            break
+        case .min, .progressing:
+            targetContentOffset.pointee = .zero
+        }
         animateTranslationEnd(following: scrollView, velocity: velocity)
     }
     
