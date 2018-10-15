@@ -14,6 +14,9 @@
 		A8A2916221704F7B00FF047F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8A2916021704F7B00FF047F /* LaunchScreen.storyboard */; };
 		A8A2916D21704F7B00FF047F /* ios_drawerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A2916C21704F7B00FF047F /* ios_drawerTests.swift */; };
 		A8A2917821704F7B00FF047F /* ios_drawerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A2917721704F7B00FF047F /* ios_drawerUITests.swift */; };
+		A8A29188217050DC00FF047F /* IMG_C725DE7E2DBF-1.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = A8A29187217050DC00FF047F /* IMG_C725DE7E2DBF-1.jpeg */; };
+		A8A2918A217054AF00FF047F /* OverlayVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A29189217054AF00FF047F /* OverlayVC.swift */; };
+		A8A2918C217057BE00FF047F /* OverlayContainerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A2918B217057BE00FF047F /* OverlayContainerVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +50,9 @@
 		A8A2917321704F7B00FF047F /* ios-drawerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ios-drawerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8A2917721704F7B00FF047F /* ios_drawerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ios_drawerUITests.swift; sourceTree = "<group>"; };
 		A8A2917921704F7B00FF047F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A8A29187217050DC00FF047F /* IMG_C725DE7E2DBF-1.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "IMG_C725DE7E2DBF-1.jpeg"; sourceTree = "<group>"; };
+		A8A29189217054AF00FF047F /* OverlayVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayVC.swift; sourceTree = "<group>"; };
+		A8A2918B217057BE00FF047F /* OverlayContainerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContainerVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,9 +106,12 @@
 				A8A2915721704F7900FF047F /* AppDelegate.swift */,
 				A8A2915921704F7900FF047F /* ViewController.swift */,
 				A8A2915B21704F7900FF047F /* Main.storyboard */,
+				A8A2918B217057BE00FF047F /* OverlayContainerVC.swift */,
+				A8A29189217054AF00FF047F /* OverlayVC.swift */,
 				A8A2915E21704F7B00FF047F /* Assets.xcassets */,
 				A8A2916021704F7B00FF047F /* LaunchScreen.storyboard */,
 				A8A2916321704F7B00FF047F /* Info.plist */,
+				A8A29187217050DC00FF047F /* IMG_C725DE7E2DBF-1.jpeg */,
 			);
 			path = "ios-drawer";
 			sourceTree = "<group>";
@@ -230,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A8A2916221704F7B00FF047F /* LaunchScreen.storyboard in Resources */,
+				A8A29188217050DC00FF047F /* IMG_C725DE7E2DBF-1.jpeg in Resources */,
 				A8A2915F21704F7B00FF047F /* Assets.xcassets in Resources */,
 				A8A2915D21704F7900FF047F /* Main.storyboard in Resources */,
 			);
@@ -257,7 +267,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A8A2915A21704F7900FF047F /* ViewController.swift in Sources */,
+				A8A2918C217057BE00FF047F /* OverlayContainerVC.swift in Sources */,
 				A8A2915821704F7900FF047F /* AppDelegate.swift in Sources */,
+				A8A2918A217054AF00FF047F /* OverlayVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
