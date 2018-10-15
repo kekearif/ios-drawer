@@ -114,15 +114,21 @@ class OverlayContainerVC: UIViewController {
     
     // Called when the dragging ends
     private func animateTranslationEnd(following scrollView: UIScrollView, velocity: CGPoint) {
-        // Velocity is +ve when flicked up
-        print("the velocity is \(velocity)")
-        print("the distance is \(project(velocity: velocity, decelarationRate: decelarationRate))")
+        // Velocity is +ve when flicked up, it's pts per millisecond
+        print("the velocity is \(velocity.y * 1000) per second!")
+        // This is pts per second
         
+        
+        print("the distance is \(project(velocity: velocity, decelarationRate: decelarationRate))")
+        heightConstraint.constant += project(velocity: velocity, decelarationRate: decelarationRate)
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 100, initialSpringVelocity: 30, options: [.curveEaseOut, .allowUserInteraction], animations: {() in
+            self.view.layoutIfNeeded()
+        }, completion: nil)
         
     }
     
     private func project(velocity: CGPoint, decelarationRate: CGFloat) -> CGFloat {
-        return (velocity.y / 1000) * decelarationRate / (1 - decelarationRate)
+        return ((velocity.y * velocity.y) / 2 * decelarationRate) * 10
     }
     
     // MARK: - Animation
