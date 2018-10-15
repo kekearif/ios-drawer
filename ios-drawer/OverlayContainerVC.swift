@@ -114,11 +114,12 @@ class OverlayContainerVC: UIViewController {
     }
     
     // Step 3 : Called when finger comes off the drag
+    // Come back to this
     private func animateTranslationEnd(following scrollView: UIScrollView, velocity: CGPoint) {
         let distance: CGFloat = maxHeight - minHeight
         let progressDistance: CGFloat = heightConstraint.constant - minHeight
         let progress: CGFloat = progressDistance / distance
-        let velocityY = -velocity.y * 100
+        let velocityY = -velocity.y * 100 // make the number bigger
         if abs(velocityY) > minimumVelocityConsideration && progress != 0 && progress != 1 {
             let rest = abs(distance - progressDistance)
             let position: OverlayPosition
@@ -130,6 +131,7 @@ class OverlayContainerVC: UIViewController {
             }
             moveOverlay(to: position, duration: duration, velocity: velocity)
         } else {
+            // Not fast enough on the vel use a defualt to snap
             if progress < 0.5 {
                 moveOverlay(to: .min)
             } else {
