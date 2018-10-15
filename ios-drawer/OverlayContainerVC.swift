@@ -9,7 +9,7 @@
 import UIKit
 
 enum OverlayPosition {
-    case min, max
+    case min, max, close
 }
 
 enum OverlayInFlightPosition {
@@ -56,6 +56,8 @@ class OverlayContainerVC: UIViewController {
             return maxHeight
         case .min:
             return minHeight
+        case .close:
+            return 0
         }
     }
     
@@ -96,9 +98,7 @@ class OverlayContainerVC: UIViewController {
         switch overlayInFlightPosition {
         case .max:
             return offSet < 0
-        case .min:
-            return offSet > 0
-        case .progressing:
+        case .min, .progressing:
             return true
         }
     }
@@ -110,7 +110,7 @@ class OverlayContainerVC: UIViewController {
         // Drag up is -ve so need to invert, grab the current height work from there
         let translation: CGFloat = translatedViewTargetHeight - scrollView.panGestureRecognizer.translation(in: view).y
         // Don't let it go below min or above max
-        heightConstraint.constant = max(minHeight, min(translation, maxHeight))
+        heightConstraint.constant = min(translation, maxHeight)
     }
     
     // Step 3 : Called when finger comes off the drag
@@ -132,7 +132,10 @@ class OverlayContainerVC: UIViewController {
             moveOverlay(to: position, duration: duration, velocity: velocity)
         } else {
             // Not fast enough on the vel use a defualt to snap
-            if progress < 0.5 {
+            if progress < 0 {
+                // This works but it isn't checking the distance yet...
+                moveOverlay(to: .close)
+            } else if progress < 0.5 {
                 moveOverlay(to: .min)
             } else {
                 moveOverlay(to: .max)
@@ -180,6 +183,7 @@ extension OverlayContainerVC: OverlayVCDelegate {
             break
         case .min, .progressing:
             // Switch the offset back to zero
+            // Do I need to change this?
             targetContentOffset.pointee = .zero
         }
         // we animate the end using velocity
