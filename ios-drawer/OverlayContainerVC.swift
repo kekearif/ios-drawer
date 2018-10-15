@@ -42,6 +42,10 @@ class OverlayContainerVC: UIViewController {
         return view.bounds.height * 0.2
     }
     
+    private var decelarationRate: CGFloat {
+        return UIScrollView.DecelerationRate.normal.rawValue
+    }
+    
     private var duration: Double = 0.3
     
     private var overlayInFlightPosition: OverlayInFlightPosition {
@@ -102,7 +106,7 @@ class OverlayContainerVC: UIViewController {
     
     // Dragging
     private func translateView(following scrollView: UIScrollView) {
-        scrollView.contentOffset.y = 0
+        scrollView.contentOffset = .zero
         let translation: CGFloat = heightConstraint.constant - scrollView.panGestureRecognizer.translation(in: view).y + prevTranslation
         heightConstraint.constant = translation
         prevTranslation = scrollView.panGestureRecognizer.translation(in: view).y
@@ -110,17 +114,15 @@ class OverlayContainerVC: UIViewController {
     
     // Called when the dragging ends
     private func animateTranslationEnd(following scrollView: UIScrollView, velocity: CGPoint) {
-        // Note we need to use velocity etc to allow for draw and flick
-        switch overlayInFlightPosition {
-        case .max, .maxStretch:
-            moveOverlay(to: .max)
-        case .min, .belowMin:
-            moveOverlay(to: .min)
-        case .minCompress:
-            // Will use the close function for this
-            moveOverlay(to: .close)
-            break
-        }
+        // Velocity is +ve when flicked up
+        print("the velocity is \(velocity)")
+        print("the distance is \(project(velocity: velocity, decelarationRate: decelarationRate))")
+        
+        
+    }
+    
+    private func project(velocity: CGPoint, decelarationRate: CGFloat) -> CGFloat {
+        return (velocity.y / 1000) * decelarationRate / (1 - decelarationRate)
     }
     
     // MARK: - Animation
