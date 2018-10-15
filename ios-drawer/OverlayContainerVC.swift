@@ -89,6 +89,7 @@ class OverlayContainerVC: UIViewController {
     
     // MARK: - Scroll Control
     
+    // Step 1 : Decide if dragging can continue or not
     private func shouldTranslateView(following scrollView: UIScrollView) -> Bool {
         guard scrollView.isTracking else { return false }
         let offSet: CGFloat = scrollView.contentOffset.y
@@ -102,12 +103,17 @@ class OverlayContainerVC: UIViewController {
         }
     }
     
+    // Step 2 : This is called is drag allowed
     private func translateView(following scrollView: UIScrollView) {
+        // Lock the scroll view to zero
         scrollView.contentOffset = .zero
+        // Drag up is -ve so need to invert, grab the current height work from there
         let translation: CGFloat = translatedViewTargetHeight - scrollView.panGestureRecognizer.translation(in: view).y
+        // Don't let it go below min or above max
         heightConstraint.constant = max(minHeight, min(translation, maxHeight))
     }
     
+    // Step 3 : Called when finger comes off the drag
     private func animateTranslationEnd(following scrollView: UIScrollView, velocity: CGPoint) {
         let distance: CGFloat = maxHeight - minHeight
         let progressDistance: CGFloat = heightConstraint.constant - minHeight
@@ -134,6 +140,8 @@ class OverlayContainerVC: UIViewController {
     
     // MARK: - Animation
     
+    
+    // Step 4 : Actual animation
     private func moveOverlay(to position: OverlayPosition, duration: TimeInterval, velocity: CGPoint) {
         overlayPosition = position
         heightConstraint.constant = translatedViewTargetHeight
@@ -148,6 +156,7 @@ class OverlayContainerVC: UIViewController {
         }, completion: nil)
     }
     
+    // This is a shortcut for the animation to use the defaults
     func moveOverlay(to position: OverlayPosition) {
         moveOverlay(to: position, duration: defaultDuration, velocity: .zero)
     }
@@ -168,8 +177,10 @@ extension OverlayContainerVC: OverlayVCDelegate {
         case .max:
             break
         case .min, .progressing:
+            // Switch the offset back to zero
             targetContentOffset.pointee = .zero
         }
+        // we animate the end using velocity
         animateTranslationEnd(following: scrollView, velocity: velocity)
     }
     
